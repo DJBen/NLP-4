@@ -13,7 +13,7 @@ public class Parse {
             BufferedReader grammarBuffered = new BufferedReader(grammarFile);
             BufferedReader sentencesBuffered = new BufferedReader(sentencesFile);
 
-            HashMap<String, ArrayList<Rule>> grammar = new HashMap<String, ArrayList<Rule>>();
+            Map<String, List<Rule>> grammar = new HashMap<>();
             String line = null;
             String lhs;
             ArrayList<String> temp;
@@ -23,10 +23,11 @@ public class Parse {
             ArrayList<String> tempSentence;
             Chart tempChart;
             while ((line = grammarBuffered.readLine()) != null) {
-                temp = new ArrayList<String>(Arrays.asList(line.split("\\s+")));
+                temp = new ArrayList<>(Arrays.asList(line.split("\\s+")));
                 tempWeight = (-1) * Math.log10(Double.parseDouble(temp.remove(0)))/Math.log10(2.0);
-                tempRule = new Rule(tempWeight, temp);
                 lhs = temp.get(0);
+                temp.remove(0);
+                tempRule = new Rule(tempWeight, lhs, temp);
                 if (grammar.get(lhs) == null) {
                     tempRuleList = new ArrayList<Rule>();
                     tempRuleList.add(tempRule);
@@ -39,9 +40,13 @@ public class Parse {
 
             while ((line = sentencesBuffered.readLine()) != null) {
                 if (line.length() > 0) {
-                    tempSentence = new ArrayList<String>(Arrays.asList(line.split("\\s+")));
-                    tempChart = new Chart(tempSentence, grammar);
+                    tempSentence = new ArrayList<>(Arrays.asList(line.split("\\s+")));
+                    Grammar.loadGrammar(grammar);
+                    System.out.println(grammar);
+                    System.out.println(tempSentence);
+                    tempChart = new Chart(tempSentence);
                     tempChart.getParseWeight();
+                    System.out.println(tempChart);
                 }
             }
         }

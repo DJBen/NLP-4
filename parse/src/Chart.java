@@ -1,63 +1,96 @@
 import java.util.*;
-import java.io.*;
 
 /**
  * Created by Chenyang Su on 3/18/2016.
  */
 public class Chart {
-    private Vector<HashMap<DottedRuleStartColumn, WeightBackPointer>> chartTable;
-    private int sentenceLength;
-    public Chart(ArrayList<String> sentence, HashMap<String, ArrayList<Rule>> grammar) {
-        sentenceLength = sentence.size();
-        chartTable = new Vector<>(sentenceLength + 1);
-        for (int i = 0; i <= sentenceLength; i++) {
-            chartTable.add(new HashMap<DottedRuleStartColumn, WeightBackPointer>());
+    private Vector<ChartColumn> chartTable;
+    private List<String> sentence;
+
+    public Chart(ArrayList<String> sentence) {
+        this.sentence = sentence;
+        chartTable = new Vector<>(sentence.size() + 1);
+
+        // Add "0 ROOT . S" to first column and empty the rest
+        chartTable.add(new ChartColumn(0, true));
+        for (int i = 1; i < sentence.size() + 1; i++) {
+            chartTable.add(new ChartColumn(i));
         }
 
-        //initialization
-        DottedRuleStartColumn initialKey = new DottedRuleStartColumn(0, 0,grammar.get("ROOT").get(0).getRuleExpression());
-        chartTable.get(0).put(initialKey, new WeightBackPointer(grammar.get("ROOT").get(0).getWeight(), null, null));
         //There is one pointer of the entry iterate through each column one by one. There is also one pointer of the hashmap in the vector to indicate where to add new entries.
         //when the first pointer comes to a entry, the following situation may happen:
         // 1. predict    2. scan  3. attach
         //the end condition is that the entry pointer is at the end of vector's last hashmap
         //there is a lowest weight parse iff in the vector's last hashmap there is a complete ROOT rule.
 
-        Iterator it;
-        DottedRuleStartColumn entryPointer;
-        int hashMapPosition; //this is the index of the hashmap in the vector where we are now adding new entries
+        for (int i = 0; i < sentence.size() + 1; i++) {
+            ChartColumn currentColumn = chartTable.get(i);
+            while (currentColumn.hasNextKey()) {
+                ChartEntryKey key = currentColumn.peekKey();
+                switch (key.operation()) {
+                    case PREDICT:
+                        currentColumn.addPredictions();
+                        break;
+                    case ATTACH:
+                        currentColumn.getNextKey();
+                        this.attachChartKey(key, i);
+                        break;
+                    case SCAN:
+                        this.scanKey(key, i);
+                        break;
+                }
+            }
+        }
+    }
 
-        for(int i = 0; i <= sentenceLength; i++) {
-           it = chartTable.get(i).entrySet().iterator();
-           while (it.hasNext()) {
-               Map.Entry pair = (Map.Entry)it.next();
-               entryPointer = (DottedRuleStartColumn)pair.getKey();
-               // do the entry operation
-           }
-
+    public void scanKey(ChartEntryKey key, int currentColumnIndex) {
+        if (key.operation() != ChartOperation.SCAN) {
+            return;
         }
 
+        if (currentColumnIndex >= sentence.size()) {
+            chartTable.get(currentColumnIndex).getNextKey();
+            return;
+        }
 
+        String word = sentence.get(currentColumnIndex);
+        ChartColumn nextColumn = chartTable.get(currentColumnIndex + 1);
+        Map.Entry<ChartEntryKey, WeightBackPointer> entry = chartTable.get(currentColumnIndex).scannedKeyAgainstWord(word);
+        if (entry == null) {
+            return;
+        }
 
-     /*   DottedRuleStartColumn entryPointer = initialKey;
-        int hashMapPosition = 0; // this is the index of the hashmap in the vector where we are now adding new entries
-        Iterator it;
-        for (int i = 0; i <= sentenceLength; i++) {
-            it = chartTable.get(i).entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry pair = (Map.Entry)it.next();
-                entryPointer = pair.getKey();
+        nextColumn.addEntry(entry.getKey(), entry.getValue());
+    }
 
-            }
+    public void attachChartKey(ChartEntryKey key, int currentColumnIndex) {
+        if (key.operation() != ChartOperation.ATTACH) {
+            return;
+        }
 
-        }*/
+        ChartColumn currentColumn = chartTable.get(currentColumnIndex);
+        double currentWeight = currentColumn.getWeightForKey(key).getWeight();
+        int startColumn = key.getStartColumn();
+        ChartColumn targetColumn = chartTable.get(startColumn);
 
-
-
-
+        for (Map.Entry<ChartEntryKey, Double> entry: targetColumn.keysToAttachForKey(key)) {
+            ChartEntryKey childKey = entry.getKey();
+            double weight = entry.getValue();
+            ChartEntryKey newKey = new ChartEntryKey(childKey.getStartColumn(), childKey.getDotPosition() + 1, childKey.getLhs(), childKey.getRhs());
+            currentColumn.addEntry(newKey, new WeightBackPointer(weight + currentWeight, key, childKey));
+        }
     }
 
     public double getParseWeight() {
+        return 0;
+    }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (ChartColumn c : chartTable) {
+            builder.append(c.toString() + "\n");
+        }
+        return builder.toString();
     }
 }
