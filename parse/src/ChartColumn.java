@@ -76,7 +76,8 @@ public class ChartColumn {
         }
 
         ChartEntryKey scannedKey = new ChartEntryKey(key.getStartColumn(), key.getDotPosition() + 1, key.getLhs(), key.getRhs());
-        WeightBackPointer pt = new WeightBackPointer(columnMap.get(key).getWeight(), key, null);
+        BackPointer p = new BackPointer(key, columnNumber);
+        WeightBackPointer pt = new WeightBackPointer(columnMap.get(key).getWeight(), p, null);
         return new AbstractMap.SimpleEntry<>(scannedKey, pt);
     }
 

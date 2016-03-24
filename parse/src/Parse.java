@@ -47,6 +47,7 @@ public class Parse {
                     tempChart = new Chart(tempSentence);
                     tempChart.getParseWeight();
                     System.out.println(tempChart);
+                    System.out.println(tempChart.treeView());
                 }
             }
         }

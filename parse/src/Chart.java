@@ -77,7 +77,9 @@ public class Chart {
             ChartEntryKey childKey = entry.getKey();
             double weight = entry.getValue();
             ChartEntryKey newKey = new ChartEntryKey(childKey.getStartColumn(), childKey.getDotPosition() + 1, childKey.getLhs(), childKey.getRhs());
-            currentColumn.addEntry(newKey, new WeightBackPointer(weight + currentWeight, key, childKey));
+            BackPointer p2 = new BackPointer(key, currentColumnIndex);
+            BackPointer p1 = new BackPointer(childKey, startColumn);
+            currentColumn.addEntry(newKey, new WeightBackPointer(weight + currentWeight, p1, p2));
         }
     }
 
@@ -92,5 +94,42 @@ public class Chart {
             builder.append(c.toString() + "\n");
         }
         return builder.toString();
+    }
+
+    public String treeView() {
+        WeightBackPointer w = chartTable.lastElement().getWeightForKey(ChartEntryKey.rootEntryKey());
+        if (w == null) {
+            return "NONE";
+        }
+
+        StringBuilder builder = new StringBuilder();
+        builder.append(treeViewWithKey(ChartEntryKey.rootEntryKey(), w));
+        builder.append('\n');
+        builder.append(w.getWeight() + "\n");
+        return builder.toString().substring(1);
+    }
+
+    private String treeViewWithKey(ChartEntryKey key, WeightBackPointer p) {
+        StringBuilder b = new StringBuilder();
+        if (p.getBackPointer1() != null || p.getBackPointer2() != null) {
+            if (p.getBackPointer1() != null) {
+                WeightBackPointer p1p = chartTable.get(p.getBackPointer1().getColumn()).getWeightForKey(p.getBackPointer1().getKey());
+                if (p.getBackPointer2() == null) {
+                    b.append(treeViewWithKey(p.getBackPointer1().getKey(), p1p));
+                } else {
+                    b.append(treeViewWithKey(p.getBackPointer1().getKey(), p1p));
+                }
+            }
+            if (p.getBackPointer2() != null) {
+                WeightBackPointer p2p = chartTable.get(p.getBackPointer2().getColumn()).getWeightForKey(p.getBackPointer2().getKey());
+                b.append(treeViewWithKey(p.getBackPointer1().getKey(), p2p) + ")");
+            }
+        } else {
+            b.append(" (" + key.getLhs());
+            if (key.symbolAfterDot() != null && Grammar.isTerminal(key.symbolAfterDot())) {
+                b.append(" " + key.symbolAfterDot() + ")");
+            }
+        }
+        return b.toString();
     }
 }

@@ -3,10 +3,10 @@
  */
 public class WeightBackPointer {
     private double weight;
-    private ChartEntryKey backPointer1;
-    private ChartEntryKey backPointer2;
+    private BackPointer backPointer1;
+    private BackPointer backPointer2;
 
-    public WeightBackPointer(double weight, ChartEntryKey backPointer1, ChartEntryKey backPointer2) {
+    public WeightBackPointer(double weight, BackPointer backPointer1, BackPointer backPointer2) {
         this.weight = weight;
         this.backPointer1 = backPointer1;
         this.backPointer2 = backPointer2;
@@ -16,11 +16,11 @@ public class WeightBackPointer {
         return weight;
     }
 
-    public ChartEntryKey getBackPointer1() {
+    public BackPointer getBackPointer1() {
         return backPointer1;
     }
 
-    public ChartEntryKey getBackPointer2() {
+    public BackPointer getBackPointer2() {
         return backPointer2;
     }
 }

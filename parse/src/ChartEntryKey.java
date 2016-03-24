@@ -9,6 +9,11 @@ public class ChartEntryKey {
     private String lhs;
     private ArrayList<String> ruleExpression;
 
+    public static ChartEntryKey rootEntryKey() {
+        Rule rootRule = Grammar.getRulesForSymbol("ROOT").get(0);
+        return new ChartEntryKey(0, rootRule.getRuleExpression().size(), "ROOT", rootRule.getRuleExpression());
+    }
+
     public ChartEntryKey(int startColumn, int dotPosition, String symbol, ArrayList<String> ruleExpression) {
         this.startColumn = startColumn;
         this.dotPosition = dotPosition;
