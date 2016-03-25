@@ -21,7 +21,7 @@ public class Chart {
         //when the first pointer comes to a entry, the following situation may happen:
         // 1. predict    2. scan  3. attach
         //the end condition is that the entry pointer is at the end of vector's last hashmap
-        //there is a lowest weight parse iff in the vector's last hashmap there is a complete ROOT rule.
+        //there is a lowest weight parse iff in the vector's last hashmap there is a complete ROOT rule with start column 0.
 
         for (int i = 0; i < sentence.size() + 1; i++) {
             ChartColumn currentColumn = chartTable.get(i);
