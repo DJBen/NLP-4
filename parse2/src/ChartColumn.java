@@ -9,10 +9,19 @@ public class ChartColumn {
     private int readIndex = 0;
     private int columnNumber;
     private Set<String> predictedNonTerminals = new HashSet<>();
+    private Map<String, List<ChartEntryKey>> afterDotMap = new HashMap<>();
 
     public void addEntry(ChartEntryKey key, WeightBackPointer value) {
         if (columnMap.get(key) == null) {
             columnList.add(key);
+            if (key.symbolAfterDot() != null) {
+                List<ChartEntryKey> keys = afterDotMap.get(key.symbolAfterDot());
+                if (keys == null) {
+                    keys = new ArrayList<>();
+                }
+                keys.add(key);
+                afterDotMap.put(key.symbolAfterDot(), keys);
+            }
             columnMap.put(key, value);
         } else {
             if (columnMap.get(key).getWeight() > value.getWeight()) {
@@ -100,11 +109,9 @@ public class ChartColumn {
         }
 
         List<Map.Entry<ChartEntryKey, Double>> result = new ArrayList<>();
-        for (ChartEntryKey k : columnList) {
-            if (k.symbolAfterDot() == null) {
-                continue;
-            }
-            if (k.symbolAfterDot().equals(key.getLhs())) {
+        List<ChartEntryKey> keys = afterDotMap.get(key.getLhs());
+        if (keys != null) {
+            for (ChartEntryKey k : keys) {
                 AbstractMap.SimpleEntry<ChartEntryKey, Double> entry = new AbstractMap.SimpleEntry<>(k, columnMap.get(k).getWeight());
                 result.add(entry);
             }

@@ -1,4 +1,10 @@
-nlp assignment 4
+NLP assignment 4
+
+Chenyang Su (csu8@jhu.edu)
+Writeup; most of problem 1; I/O module and logic of parse;
+
+Sihao Lu (slu21@jhu.edu)
+Implementation of predict/attach/scan of parse; speed up of parse.
 
 Problem 1
 
