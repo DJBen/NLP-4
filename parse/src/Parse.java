@@ -42,11 +42,11 @@ public class Parse {
                 if (line.length() > 0) {
                     tempSentence = new ArrayList<>(Arrays.asList(line.split("\\s+")));
                     Grammar.loadGrammar(grammar);
-                    System.out.println(grammar);
-                    System.out.println(tempSentence);
+//                    System.out.println(grammar);
+//                    System.out.println(tempSentence);
                     tempChart = new Chart(tempSentence);
                     tempChart.getParseWeight();
-                    System.out.println(tempChart);
+//                    System.out.println(tempChart);
                     System.out.println(tempChart.treeView());
                 }
             }

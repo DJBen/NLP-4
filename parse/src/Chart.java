@@ -124,10 +124,13 @@ public class Chart {
                 WeightBackPointer p2p = chartTable.get(p.getBackPointer2().getColumn()).getWeightForKey(p.getBackPointer2().getKey());
                 b.append(treeViewWithKey(p.getBackPointer1().getKey(), p2p) + ")");
             }
+            if (key.symbolAfterDot() != null && Grammar.isTerminal(key.symbolAfterDot())) {
+                b.append(" " + key.symbolAfterDot());
+            }
         } else {
             b.append(" (" + key.getLhs());
             if (key.symbolAfterDot() != null && Grammar.isTerminal(key.symbolAfterDot())) {
-                b.append(" " + key.symbolAfterDot() + ")");
+                b.append(" " + key.symbolAfterDot());
             }
         }
         return b.toString();
