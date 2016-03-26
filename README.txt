@@ -51,3 +51,34 @@ I also tried sentences with ambiguity. The one "Time flies like an arrow." can b
 
 For long sentences with clauses, the parser functions very well on sentences without conjuntions, like "I watched you ate it." and "I saw you did it.". But for the sentence I picked from The Great Gatsby, "As I walked on I was lonely no longer", it made the same mistake as the Stanford parser, which took "on I" as a PP.
 
+
+Problem 2
+
+We denote the size of grammar to be g.
+(a) Among three states of our program, none exceeded n^3 time or n^2 space:
+
+i) PREDICT:
+We prescan the grammar into hashmaps mapping from symbols to (array of) rules. So prediction phase basically pulls out rules that starts from the specific symbol and add them all to the current column. It takes O(g) time and O(g) space.
+
+ii) SCAN:
+Just a comparison of string and an operation to copy one row to the next column. O(1) time and space.
+
+iii) ATTACH:
+Interesting case. It needs to find all items whose symbol after dot equals the start symbol of the current item being attached. It takes O(n) time to scan and attach. However after speed up, we use O(n) space and O(1) time instead.
+
+There are n^2 items to be processed. Thus it takes at most n^3 time.
+
+(b) Our column is separated maintained in an array and a hashmap. Array is in charge of keeping items in order, while hashmap is used to find items quickly. So it costs O(1) to detect duplicate, which is efficient.
+
+(c) Speaking of the details of hashmap we mentioned in (b), it is a structure that maps a tuple (START_COL, DOT_POS, START_SYMBOL, [RULES]) to another tuple (WEIGHT, BACK_POINTER_1, BACK_POINTER_2). We serialize the first tuple to string, so it can be used as key. To update weight and/or backpointers, we simply access the value tuple via hashmap in O(1) and overwrite it. Therefore, maintaining best parse tree here is efficient. 
+
+Problem 3
+
+With no speedups, the estimated run time is about 300s (Java).
+
+(a) We maintain a predicted symbol hash set for every column, so that predicted symbol do not get processed at all. It speeds up the program to about 220s.
+
+(b) We generate a sentence terminal set, to which we trimmed the grammar's terminal so that no terminal outside that does not exist in the sentence ever appears in grammar. This reduced the grammar size a lot, which further speeds up the program to about 160s.
+
+(c) In the attach process, we need to find all the items whose symbol after dot equals the start symbol of the current item being attached. This is a huge O(n) scan for every item that needs to be attached. To optimize this, we kept a symbol-after-dot index in every column that takes O(1) to find all the required items to attach to. This magically speeds up the program to 47s.
+
