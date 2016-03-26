@@ -102,11 +102,11 @@ public class Chart {
     public String treeView() {
         WeightBackPointer w = chartTable.lastElement().getWeightForKey(ChartEntryKey.rootEntryKey());
         if (w == null) {
-            return "NONE";
+            return "NONE\n";
         }
 
         StringBuilder builder = new StringBuilder();
-        builder.append(treeViewWithKey(ChartEntryKey.rootEntryKey(), w));
+        builder.append(treeViewWithKey(ChartEntryKey.rootEntryKey(), w) + ")");
         builder.append('\n');
         builder.append(w.getWeight() + "\n");
         return builder.toString().substring(1);
